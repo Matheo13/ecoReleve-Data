@@ -72,7 +72,7 @@ def GetProtocolsIDofStation (request) :
                     protoDict[virginTypeID] = {'Name':viginTypeName, 'obs':[]}
 
         globalListProto = [{'ID':objID, 'Name':protoDict[objID]['Name'],'obs':protoDict[objID]['obs'] } for objID in protoDict.keys()]
-        response = globalListProto
+        response = sorted(globalListProto, key=lambda k: k['Name'])
     except Exception as e :
         print_exc()
         pass
