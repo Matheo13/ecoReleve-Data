@@ -15,7 +15,7 @@ from sqlalchemy import func,select,and_, or_, join
 from pyramid.security import NO_PERMISSION_REQUIRED
 from collections import OrderedDict
 from traceback import print_exc
-
+from functools import reduce 
 
 prefixProt = 'protocols'
 prefix = 'stations'
@@ -23,6 +23,63 @@ prefix = 'stations'
 # ------------------------------------------------------------------------------------------------------------------------- #
 @view_config(route_name= prefix+'/id/protocols/', renderer='json', request_method = 'GET')
 @view_config(route_name= prefix+'/id/protocols', renderer='json', request_method = 'GET')
+def GetProtocolsIDofStation (request) :
+    session = request.dbsession
+
+    sta_id = request.matchdict['id']
+    data = {}
+    searchInfo = {}
+    criteria = [{'Column': 'FK_Station', 'Operator':'=','Value':sta_id}]
+    response = []
+    curSta = session.query(Station).get(sta_id)
+
+    try : 
+        if 'criteria' in request.params or request.params == {} :
+            searchInfo = data
+            searchInfo['criteria'] = []
+            searchInfo['criteria'].extend(criteria)
+            listObs = ListObjectWithDynProp(session,Observation,searchInfo)
+            response = listObs.GetFlatList()
+    except : 
+        pass
+    try :
+        ModuleName = 'ObservationForm'
+        listObs = list(session.query(Observation
+            ).filter(and_(Observation.FK_Station == sta_id
+            ,Observation.Parent_Observation == None)))
+        
+        listType =list(session.query(FieldActivity_ProtocoleType
+            ).filter(FieldActivity_ProtocoleType.FK_fieldActivity == curSta.fieldActivityId))
+
+        if listObs or listType:
+            protoDict = {}
+
+            for obs in listObs :
+                typeName = obs.GetType().Name
+                typeID = obs.GetType().ID
+                if typeID in protoDict:
+                    protoDict[typeID]['obs'].append(obs.ID)
+                else :
+                    protoDict[typeID]={'Name':typeName,'obs':[obs.ID]}
+
+            # load protocol info when not existing for station but existing for fieldActivity of Station
+            for i in range(len(listType)) :
+                virginTypeID = listType[i].FK_ProtocoleType
+                virginObs = Observation(FK_ProtocoleType = virginTypeID)
+                viginTypeName = virginObs.GetType().Name
+
+                if virginTypeID not in protoDict :
+                    protoDict[virginTypeID] = {'Name':viginTypeName, 'obs':[]}
+
+        globalListProto = [{'ID':objID, 'Name':protoDict[objID]['Name'],'obs':protoDict[objID]['obs'] } for objID in protoDict.keys()]
+        response = globalListProto
+    except Exception as e :
+        print_exc()
+        pass
+    return response
+
+
+
 def GetProtocolsofStation (request) :
     session = request.dbsession
 
