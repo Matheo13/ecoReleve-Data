@@ -40,7 +40,7 @@
   var tpl = '<form class="filter form-horizontal filter-form-<%=fieldname%>">'
         + '<div   class="filter-container clearfix" >'
         + '<span data-editors="Column"></span>'
-        + '<span class="col-xs-3"><b><%= filterName %>&nbsp:</b></span>'
+        + '<span class="col-xs-3 filter-label"><%= filterName %></span>'
        + '<span data-editors="ColumnType"></span>'
 
        + '<span class="col-xs-3 no-padding" data-editors="Operator"></span>'
@@ -53,9 +53,9 @@
 
   var tplcheck =
     '<form class="filter form-horizontal filter-form-<%=fieldname%>" style="position:relative">'
-    + '<br><div   style="margin-bottom: 30px;">'
+    + '<div class="filter-container"  style="padding: 30px 0px;">'
         + '<span data-editors="Column"></span>'
-        + '<span class="col-xs-3"><b><%= filterName %>&nbsp:</b></span>'
+        + '<span class="col-xs-3 filter-label"><%= filterName %></span>'
         + '<span data-editors="ColumnType"></span>'
 
         + '<span class="hidden col-xs-4" data-editors="Operator"></span>'
@@ -67,22 +67,27 @@
 
   var tplinterval =
    '<form class="filter form-horizontal filter-form-<%=fieldname%>" style="position:relative">'
-   + '<div   class="clearfix">'
+   + '<div   class="filter-container clearfix">'
        + '<span data-editors="Column"></span>'
-       + '<span class="col-xs-3"><b><%= filterName %>&nbsp:</b></span>'
+       + '<span class="col-xs-3 filter-label"><%= filterName %></span>'
        + '<span data-editors="ColumnType"></span>'
        + '<span class="hidden col-xs-4" data-editors="Operator"></span>'
        + '<span class="col-xs-3">From</span><span class="col-xs-6 filterinterval" data-editors="From"></span>'
     + '</div>'
-    + '<div class="clearfix">'
+    + '<div class="filter-container clearfix">'
        + '<span class="col-xs-3 col-xs-offset-3">To</span><span class="col-xs-6 filterinterval" data-editors="To"></span>'
    + '</div>'
    + '</form>';
 
+<<<<<<< HEAD
   var tplAdded = '<div class="filter clearfix">'
       + '<div class="clearfix">'
+=======
+    var tplAdded = '<div class="filter clearfix">'
+      + '<div class="filter-container clearfix">'
+>>>>>>> 9a374cebdfe412214dd03117f3f4b2754c32f4b8
         + '<div class="legend">'
-         + '<label class="col-xs-12"><%= filterName %>:</label>'
+         + '<label class="col-xs-12"><%= filterName %></label>'
           + '<span data-editors="Column"></span>'
           + '<span data-editors="ColumnType"></span>'
         + '</div>'
@@ -98,10 +103,15 @@
       + '</div>'
     + '</div>';
 
+<<<<<<< HEAD
   var tplAddedInterval = '<div class="filter clearfix">'
      + '<div class="clearfix">'
+=======
+    var tplAddedInterval = '<div class="filter clearfix">'
+     + '<div class="filter-container clearfix">'
+>>>>>>> 9a374cebdfe412214dd03117f3f4b2754c32f4b8
        + '<div class="legend">'
-        + '<label class="col-xs-12"><%= filterName %>:</label>'
+        + '<label class="col-xs-12"><%= filterName %></label>'
          + '<span data-editors="Column"></span>'
          + '<span data-editors="ColumnType"></span>'
        + '</div>'

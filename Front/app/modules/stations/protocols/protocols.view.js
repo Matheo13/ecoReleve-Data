@@ -4,9 +4,14 @@ define([
   'backbone',
   'marionette',
   './protocol.view',
+  './protocol.grid.view',
 
   'i18n'
+<<<<<<< HEAD
 ], function ($, _, Backbone, Marionette, Protocol) {
+=======
+], function($, _, Backbone, Marionette, Protocol, ProtocolGrid) {
+>>>>>>> 9a374cebdfe412214dd03117f3f4b2754c32f4b8
   'use strict';
 
   return Marionette.LayoutView.extend({
@@ -25,7 +30,11 @@ define([
       'change .js-proto-picker': 'addProtoFromList'
     },
 
+<<<<<<< HEAD
     initialize: function (options) {
+=======
+    initialize: function(options){
+>>>>>>> 9a374cebdfe412214dd03117f3f4b2754c32f4b8
       this.parent = options.parent;
       this.collection = new Backbone.Collection();
     },
@@ -65,7 +74,12 @@ define([
           'change:obs': 'updateTotal'
         },
 
+<<<<<<< HEAD
         initialize: function () {
+=======
+        initialize: function(){
+         //this.model.set('grid', true);
+>>>>>>> 9a374cebdfe412214dd03117f3f4b2754c32f4b8
         },
 
         updateTotal: function () {
@@ -75,7 +89,11 @@ define([
         handleActive: function (e) {
           var hash = window.location.hash.split('?');
           var obs;
+<<<<<<< HEAD
           if (this.model.get('obs').length) {
+=======
+          if(this.model.get('obs').length){
+>>>>>>> 9a374cebdfe412214dd03117f3f4b2754c32f4b8
             obs = this.model.get('obs')[0];
           }
           if (!obs) {
@@ -158,19 +176,38 @@ define([
           var hash = window.location.hash.split('?');
           var url = hash[0] + '?proto=' + view.model.get('ID') + '&obs=' + view.model.get('currentObs');
 
+<<<<<<< HEAD
 
           if (view.model.get('currentObs') == 0) {
             $.xhrPool.allowAbort = false;
             Backbone.history.navigate(url, { trigger: false });
           }
+=======
+          $.xhrPool.allowAbort = false;
+          Backbone.history.navigate(url, {trigger: false});
+>>>>>>> 9a374cebdfe412214dd03117f3f4b2754c32f4b8
           $.xhrPool.allowAbort = true;
 
           view.model.set('stationId', _this.model.get('stationId'));
           view.$el.addClass('active');
 
+<<<<<<< HEAD
           _this.parent.rgProtocol.show(new Protocol({
             model: view.model
           }));
+=======
+
+
+          if( view.model.get('grid') ){
+            _this.parent.rgProtocol.show(new ProtocolGrid({
+              model: view.model
+            }));
+          } else {
+            _this.parent.rgProtocol.show(new Protocol({
+              model: view.model
+            }));
+          }
+>>>>>>> 9a374cebdfe412214dd03117f3f4b2754c32f4b8
         },
 
         onShow: function () {
@@ -220,7 +257,7 @@ define([
       var proto = new Backbone.Model();
 
       this.jqxhr = $.ajax({
-        url: 'stations/' + this.stationId + '/protocols/0',
+        url: 'stations/' + this.model.get('id') + '/observations/0',
         context: this,
         type: 'GET',
         data: {
@@ -229,12 +266,22 @@ define([
           DisplayMode: 'edit'
         },
         dataType: 'json',
+<<<<<<< HEAD
         success: function (data) {
           proto.set({ Name: name });
           proto.set({ ID: objectType });
           proto.set({ fieldsets: data.fieldsets });
           proto.set({ schema: data.schema });
           proto.set({ obs: [] });
+=======
+        success: function(data) {
+          proto.set({Name: name});
+          proto.set({ID: objectType});
+          proto.set({fieldsets: data.fieldsets});
+          proto.set({schema: data.schema});
+          proto.set({obs: []});
+          proto.set({grid: data.grid});
+>>>>>>> 9a374cebdfe412214dd03117f3f4b2754c32f4b8
 
           this.collection.push(proto);
           var index = this.collection.indexOf(proto);

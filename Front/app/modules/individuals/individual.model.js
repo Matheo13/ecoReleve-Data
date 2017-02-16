@@ -95,7 +95,6 @@ define([
       locationsColumnDefs: [{
         field: 'Date',
         headerName: 'date',
-        checkboxSelection: true,
         filter: 'date',
         pinned: 'left',
         minWidth: 200,
@@ -116,7 +115,7 @@ define([
         headerName: 'latitude',
         filter: 'number',
         cellRenderer: Decimal5Renderer
-      }, {
+      },{
         field: 'LON',
         headerName: 'longitude',
         filter: 'number',

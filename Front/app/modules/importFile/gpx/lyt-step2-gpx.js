@@ -141,9 +141,13 @@ define([
         {
           field: 'id',
           headerName: 'ID',
+<<<<<<< HEAD
           checkboxSelection: true
 
         }, {
+=======
+        },{
+>>>>>>> 9a374cebdfe412214dd03117f3f4b2754c32f4b8
           field: 'name',
           headerName: 'Name',
           filter: 'text',

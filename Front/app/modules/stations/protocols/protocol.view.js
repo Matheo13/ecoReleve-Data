@@ -71,8 +71,13 @@ define([
       } else {
         model.set('id', this.model.get('obs')[this.model.get('index') - 1]);
       }
+<<<<<<< HEAD
 
       model.urlRoot = 'stations/' + this.model.get('stationId') + '/protocols' + '/';
+=======
+      
+      model.urlRoot = 'stations/' + this.model.get('stationId') + '/observations';
+>>>>>>> 9a374cebdfe412214dd03117f3f4b2754c32f4b8
       model.set('ID', this.model.get('ID'));
 
       this.rgObservation.show(this.obs = new LytObservation({

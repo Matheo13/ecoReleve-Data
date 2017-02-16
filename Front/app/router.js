@@ -1,5 +1,6 @@
 
 define(['jquery', 'marionette', 'backbone', 'config', 'sweetAlert'],
+<<<<<<< HEAD
   function ($, Marionette, Backbone, config, Swal) {
     'use strict';
 
@@ -71,6 +72,79 @@ define(['jquery', 'marionette', 'backbone', 'config', 'sweetAlert'],
           if (!allowed) {
             return false;
           }
+=======
+  function($, Marionette, Backbone, config, Swal) {
+
+  'use strict';
+  return Marionette.AppRouter.extend({
+    history: [],
+    appRoutes: {
+      'export(/)': 'export',
+
+      'importFile/:type(/)': 'importFile',
+      'importFile(/)' : 'importFile',
+
+      'individuals/new(/)': 'newIndividual',
+      'individuals/:id(/)': 'individual',
+      'individuals(/)': 'individuals',
+      'individuals/new/:type(/)': 'newIndividual',
+
+
+      'monitoredSites/new(/)': 'newMonitoredSite',
+      'monitoredSites/:id(/)': 'monitoredSite',
+      'monitoredSites(/)': 'monitoredSites',
+      'monitoredSites/new/:type(/)': 'newMonitoredSite',
+
+
+      'sensors/new/:type(/)': 'newSensor',
+      'sensors/:id(/)': 'sensor',
+      'sensors(/)': 'sensors',
+
+      'stations/new/:from(/)': 'newStation',
+      'stations/new(/)': 'newStation',
+      'stations/lastImported(/)': 'stations',
+
+      'stations/:id?(proto=:proto&)obs=:obs(/)': 'station',
+      'stations/:id?proto=:proto(/)': 'station',
+      'stations/:id(/)': 'station',
+      'stations(/)': 'stations',
+
+      //'stations/:id/release(/)': 'stationRelease',
+      'release/:id(/)': 'releaseIndividuals',
+      'release(/)': 'release',
+
+      'validate(/)': 'validate',
+      'validate/:type(/)': 'validateType',
+      'validate/:type/:dataset(/)': 'validateDetail',
+
+      '*route(/:page)': 'home',
+    },
+
+    initialize: function(opt) {
+      this.collection = new Backbone.Collection([
+      {label: 'Manual import', href: 'importFile', icon: 'reneco-import'},
+      {label: 'New', href: 'stations/new', icon: 'reneco-entrykey'},
+      {label: 'Release', href: 'release', icon: 'reneco-to_release'},
+      {label: 'Validate', href: 'validate', icon: 'reneco-validate'},
+      {label: 'Stations', href: 'stations', icon: 'reneco-stations'},
+      {label: 'Observations', href: 'observations', icon: 'reneco-stations'},
+      {label: 'Individuals', href: 'individuals', icon: 'reneco-individuals'},
+      {label: 'Sensors', href: 'sensors', icon: 'reneco-sensors'},
+      {label: 'Monitored Sites', href: 'monitoredSites', icon: 'reneco-sensors'},
+      {label: 'Export', href: 'export', icon: 'reneco-export'},
+      ]);
+    },
+
+    execute: function(callback, args) {
+      var _this= this;
+
+      var route = Backbone.history.fragment;
+
+      if ((route != '') && (route != '#')){
+        var allowed = this.checkRoute();
+        if (!allowed) {
+          return false;
+>>>>>>> 9a374cebdfe412214dd03117f3f4b2754c32f4b8
         }
 
         window.checkExitForm(function () {

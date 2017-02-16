@@ -19,8 +19,12 @@ define([
         {
           field: 'UnicIdentifier',
           headerName: 'Unic Identifier',
+<<<<<<< HEAD
           checkboxSelection: true
         }, {
+=======
+        },{
+>>>>>>> 9a374cebdfe412214dd03117f3f4b2754c32f4b8
           field: 'FK_Sensor',
           headerName: 'FK_Sensor',
           hide: true
@@ -59,7 +63,10 @@ define([
         {
           field: 'FK_ptt',
           headerName: 'Unic Identifier',
+<<<<<<< HEAD
           checkboxSelection: true
+=======
+>>>>>>> 9a374cebdfe412214dd03117f3f4b2754c32f4b8
         },
         {
           field: 'FK_Individual',
@@ -101,7 +108,10 @@ define([
         {
           field: 'FK_ptt',
           headerName: 'Sensor Identifier',
+<<<<<<< HEAD
           checkboxSelection: true
+=======
+>>>>>>> 9a374cebdfe412214dd03117f3f4b2754c32f4b8
         },
         {
           field: 'FK_Individual',

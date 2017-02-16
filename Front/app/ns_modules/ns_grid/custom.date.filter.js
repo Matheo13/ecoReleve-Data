@@ -51,6 +51,7 @@ define([
       this.dateTo = this.eGui.querySelector('.js-dateto-input');
 
       this.datetimepickerOptions = {
+<<<<<<< HEAD
         /* locale : "fr",*/
         format: 'DD/MM/YYYY HH:mm',
         useCurrent: false,
@@ -61,6 +62,21 @@ define([
         }
         // focusOnShow : false
       };
+=======
+        /*locale : "fr",*/
+        format      : "DD/MM/YYYY HH:mm",
+        useCurrent  : false,
+        showClose   : true,
+
+        //debug: true,
+        widgetPositioning: {
+          horizontal: 'auto',
+          vertical: 'bottom'
+        }        
+
+        //focusOnShow : false
+      }
+>>>>>>> 9a374cebdfe412214dd03117f3f4b2754c32f4b8
 
       this.cleanBtn = this.eGui.querySelector('#cleanBtn');
       this.cleanBtn.addEventListener('click', this.dateClean.bind(this));

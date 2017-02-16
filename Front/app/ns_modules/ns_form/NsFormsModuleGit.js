@@ -8,8 +8,14 @@ define([
   'ns_ruler/ruler',
   'requirejs-text!./NsFormsModule.html',
   'fancytree',
+<<<<<<< HEAD
   './NsFormsCustomFields'
 ], function ($, _, Backbone, Marionette, BackboneForm, Swal, Ruler, tpl) {
+=======
+  './NsFormsCustomFields',
+
+], function ($, _, Backbone, Marionette, BackboneForm, Swal,Ruler, tpl) {
+>>>>>>> 9a374cebdfe412214dd03117f3f4b2754c32f4b8
   return Backbone.View.extend({
     BBForm: null,
     modelurl: null,
@@ -23,7 +29,7 @@ define([
     template: tpl,
     redirectAfterPost: '',
     displayDelete: true,
-    gridRow: false,
+    
 
     events: {
       'keypress input': 'evt'
@@ -68,6 +74,7 @@ define([
       };
     },
 
+<<<<<<< HEAD
     checkGridRowAgain: function () {
       var _this = this;
       Backbone.Form.Field.prototype.render = function () {
@@ -104,10 +111,12 @@ define([
       };
     },
 
+=======
+>>>>>>> 9a374cebdfe412214dd03117f3f4b2754c32f4b8
     initialize: function (options) {
       this.extendsBBForm();
-      this.gridRow = options.gridRow || this.gridRow;
-      this.checkGridRowAgain();
+      
+      
       var jqxhr;
       this.modelurl = options.modelurl;
 
@@ -316,11 +325,19 @@ define([
       $(this.formRegion).find('textarea').on('change', function (e) {
         _this.formChange = true;
       });
+<<<<<<< HEAD
       $(this.formRegion).find('.grid-form').on('change', function (e) {
         _this.formChange = true;
       });
       $(this.formRegion).find('.nested').on('change', function (e) {
         _this.formChange = true;
+=======
+      // $(this.formRegion).find('.grid-form').on("change", function(e) {
+      //    _this.formChange = true;
+      // });
+      $(this.formRegion).find('.nested').on("change", function(e) {
+         _this.formChange = true;
+>>>>>>> 9a374cebdfe412214dd03117f3f4b2754c32f4b8
       });
 
       $(this.formRegion).find('textarea').on('keypress', function (e) {
@@ -368,6 +385,7 @@ define([
         return;
       }
 
+<<<<<<< HEAD
       if (!this.gridRow) {
         $(this.formRegion).find('input').on('keypress', function (e) {
           if (e.which == 13) {
@@ -375,6 +393,9 @@ define([
           }
         });
       }
+=======
+      
+>>>>>>> 9a374cebdfe412214dd03117f3f4b2754c32f4b8
 
       if (this.buttonRegion) {
         if (this.buttonRegion[0]) {
@@ -393,9 +414,7 @@ define([
         this.afterShow();
       }
 
-      if (this.gridRow) {
-        this.finilizeToGridRow();
-      }
+
     },
 
     showErrorForMaxLength: function (_this) {
@@ -548,21 +567,21 @@ define([
     },
 
     butClickEdit: function (e) {
-      this.checkGridRowAgain();
+      
       this.displayMode = 'edit';
       this.initModel();
       if (this.buttonRegion)
         { this.displaybuttons(); }
     },
     butClickCancel: function (e) {
-      this.checkGridRowAgain();
+      
       this.displayMode = 'display';
       this.initModel();
       if (this.buttonRegion)
         { this.displaybuttons(); }
     },
     butClickClear: function (e) {
-      this.checkGridRowAgain();
+      
       var formContent = this.BBForm.el;
       $(formContent).find('input').not(':disabled').each(function () {
         $(this).val('');
@@ -764,6 +783,7 @@ define([
       });
     },
 
+<<<<<<< HEAD
     finilizeToGridRow: function () {
       var _this = this;
       /* var button = 'danger';
@@ -782,3 +802,9 @@ define([
 
   });
 });
+=======
+    
+  });
+
+});
+>>>>>>> 9a374cebdfe412214dd03117f3f4b2754c32f4b8

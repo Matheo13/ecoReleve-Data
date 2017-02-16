@@ -8,12 +8,16 @@ define([
   'jquery',
   'backbone',
 
+<<<<<<< HEAD
   // circular dependencies, I don't konw where to put it 4 the moment
   'ns_modules/ns_bbfe/bbfe-number',
+=======
+  //circular dependencies, I don't konw where to put it 4 the moment
+
+>>>>>>> 9a374cebdfe412214dd03117f3f4b2754c32f4b8
   'ns_modules/ns_bbfe/bbfe-timePicker',
   'ns_modules/ns_bbfe/bbfe-dateTimePicker',
   'ns_modules/ns_bbfe/bbfe-autocomplete',
-  'ns_modules/ns_bbfe/bbfe-objectPicker/bbfe-objectPicker',
   'ns_modules/ns_bbfe/bbfe-listOfNestedModel/bbfe-listOfNestedModel',
   'ns_modules/ns_bbfe/bbfe-gridForm',
   'ns_modules/ns_bbfe/bbfe-autocompTree',
@@ -22,7 +26,12 @@ define([
   'ns_modules/ns_bbfe/bbfe-gridForm',
   'ns_modules/ns_bbfe/bbfe-ajaxButton',
   'ns_modules/ns_bbfe/bbfe-lon',
+<<<<<<< HEAD
   'ns_modules/ns_bbfe/bbfe-lat'
+=======
+  'ns_modules/ns_bbfe/bbfe-lat',
+  'ns_modules/ns_bbfe/bbfe-objectPicker/bbfe-objectPicker',
+>>>>>>> 9a374cebdfe412214dd03117f3f4b2754c32f4b8
 
 ],
 
@@ -53,6 +62,45 @@ function (Marionette, LytRootView, Router, Controller, Swal, config, $, Backbone
     app.rootView.render();
     Backbone.history.start();
   });
+
+  window.swal = function(opt, type, callback, showCancelBtn) {
+    var btnColor;
+    switch (type){
+      case 'success':
+        btnColor = 'green';
+        opt.title = 'Success';
+        break;
+      case 'error':
+        btnColor = 'rgb(147, 14, 14)';
+        opt.title = 'Error';
+        break;
+      case 'warning':
+        if (!opt.title) {
+          opt.title = 'warning';
+        }
+        btnColor = 'orange';
+        break;
+      default:
+        return;
+        break;
+    }
+
+    Swal({
+      title: opt.title,
+      text: opt.text || '',
+      type: type,
+      showCancelButton: showCancelBtn,
+      confirmButtonColor: btnColor,
+      confirmButtonText: 'OK',
+      closeOnConfirm: true,
+    },
+    function(isConfirm) {
+      //could be better
+      if (isConfirm && callback) {
+        callback();
+      }
+    });
+  };
 
   window.thesaurus = {};
 
@@ -92,7 +140,11 @@ function (Marionette, LytRootView, Router, Controller, Swal, config, $, Backbone
       } else {
         options.url = config.coreUrl + options.url;
       }
+<<<<<<< HEAD
       if (options.type === 'GET') {
+=======
+      if(options.type === 'GET' || options.url.indexOf('http://') !==-1 ){ //should be a GET!! (thesaurus calls)
+>>>>>>> 9a374cebdfe412214dd03117f3f4b2754c32f4b8
         $.xhrPool.calls.push(jqxhr);
       }
     },

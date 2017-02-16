@@ -106,6 +106,7 @@ function (Marionette, NsMap, CurveGraphView, DonutGraphView, InfoView, TplGraph1
 
       this.$el.i18n();
       // mobile compatibility
+<<<<<<< HEAD
       var isMobile = window.matchMedia('only screen and (max-width: 760px)');
       if (isMobile.matches && (!window.alertMobile)) {
         Swal({
@@ -120,6 +121,22 @@ function (Marionette, NsMap, CurveGraphView, DonutGraphView, InfoView, TplGraph1
         $('.sweet-alert.showSweetAlert.visible').css('margin-left', '0px;');
         window.alertMobile = true;
       }
+=======
+      /*var isMobile = window.matchMedia("only screen and (max-width: 760px)");
+      if (isMobile.matches && (!window.alertMobile)) {
+          Swal({
+              title: 'Mobile compatibility',
+              text: 'This application is not adapted to mobile browsers yet',
+              type: 'warning',
+              showCancelButton: false,
+              confirmButtonColor: 'rgb(221, 107, 85)',
+              confirmButtonText: 'OK',
+              closeOnConfirm: true
+          });
+          $('.sweet-alert.showSweetAlert.visible').css('margin-left', '0px;');
+          window.alertMobile = true;
+      }*/
+>>>>>>> 9a374cebdfe412214dd03117f3f4b2754c32f4b8
     },
     disableTiles: function () {
       // disable tiles for disabled fonctionalities in config.js
