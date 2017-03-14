@@ -6,7 +6,7 @@ from datetime import datetime
 from .FrontModules import FrontModules, ModuleForms, ModuleGrids
 from pyramid import threadlocal
 from ..utils.datetime import parse
-from ..utils.parseValue import find, isEqual
+from ..utils.parseValue import find, isEqual, formatValue
 from sqlalchemy_utils import get_hybrid_properties
 
 Cle = {'String': 'ValueString',
@@ -20,6 +20,15 @@ Cle = {'String': 'ValueString',
 LinkedTables = {}
 
 
+class CheckingConstraintsException(Exception):
+
+    def __init__(self, value):
+        self.value = value
+
+    def __repr__(self):
+        return str(self.value) + ' failed'
+
+
 class ObjectWithDynProp:
     ''' Class to extend for mapped object with dynamic properties '''
     PropDynValuesOfNow = {}
@@ -29,6 +38,23 @@ class ObjectWithDynProp:
         self.ObjContext = threadlocal.get_current_request().dbsession
         self.PropDynValuesOfNow = {}
         self.GetAllProp()
+        self._constraintsFunctionLists = []
+
+    @property
+    def constraintsFunctionLists(self):
+        return self._constraintsFunctionLists
+
+    @constraintsFunctionLists.setter
+    def constraintsFunctionLists(self, list):
+        self._constraintsFunctionLists.extend(list)
+
+    def checkConstraintsOnData(self, data):
+        error = 0
+        for func in self._constraintsFunctionLists:
+            if not func(data):
+                error += 1
+                raise CheckingConstraintsException(func.__name__)
+        return error < 1
 
     def GetAllProp(self):
         ''' Get all object properties (dynamic and static) '''
@@ -70,11 +96,11 @@ class ObjectWithDynProp:
             self.GetAllProp()
         return find(lambda x: x['name'].lower() == nameProp.lower(), self.allProp)
 
-    def GetFrontModulesID(self, ModuleType):
+    def GetFrontModules(self, ModuleType):
         if not hasattr(self, 'FrontModules'):
             self.FrontModules = self.ObjContext.query(
                 FrontModules).filter(FrontModules.Name == ModuleType).one()
-        return self.FrontModules.ID
+        return self.FrontModules
 
     def GetGridFields(self, ModuleType):
         ''' Function to call : return Name and Type of Grid fields to display in front end
@@ -83,13 +109,13 @@ class ObjectWithDynProp:
             typeID = self.GetType().ID
             gridFields = self.ObjContext.query(ModuleGrids
                                                ).filter(
-                and_(ModuleGrids.Module_ID == self.GetFrontModulesID(ModuleType),
+                and_(ModuleGrids.Module_ID == self.GetFrontModules(ModuleType).ID,
                      or_(ModuleGrids.TypeObj == typeID, ModuleGrids.TypeObj == None))
             ).filter(
                 ModuleGrids.GridRender > 0).order_by(asc(ModuleGrids.GridOrder)).all()
         except:
             gridFields = self.ObjContext.query(ModuleGrids).filter(
-                ModuleGrids.Module_ID == self.GetFrontModulesID(ModuleType)
+                ModuleGrids.Module_ID == self.GetFrontModules(ModuleType).ID
             ).filter(ModuleGrids.GridRender > 0).order_by(asc(ModuleGrids.GridOrder)).all()
 
         cols = []
@@ -122,7 +148,7 @@ class ObjectWithDynProp:
         except:
             filterFields = self.ObjContext.query(ModuleGrids
                                                  ).filter(
-                ModuleGrids.Module_ID == self.GetFrontModulesID(ModuleType)
+                ModuleGrids.Module_ID == self.GetFrontModules(ModuleType).ID
             ).order_by(asc(ModuleGrids.FilterOrder)).all()
 
         for curConf in filterFields:
@@ -136,6 +162,12 @@ class ObjectWithDynProp:
                 filters.append(curConf.GenerateFilter())
 
         return filters
+
+    def getTypeObjectName(self):
+        return self.__tablename__ + 'Type'
+
+    def getTypeObjectFKName(self):
+        return 'FK_' + self.__tablename__ + 'Type'
 
     def GetType(self):
         raise Exception("GetType not implemented in children")
@@ -265,15 +297,17 @@ class ObjectWithDynProp:
         ''' Function to call : update properties of new
         or existing object with JSON/dict of value'''
 
-        for curProp in DTOObject:
-            if (curProp.lower() != 'id' and DTOObject[curProp] != '-1'):
-                if (isinstance(DTOObject[curProp], str)
-                        and len(DTOObject[curProp].split()) == 0):
-                    DTOObject[curProp] = None
-                self.SetProperty(curProp, DTOObject[curProp], startDate)
+        if self.checkConstraintsOnData(DTOObject):
+            for curProp in DTOObject:
+                if (curProp.lower() != 'id' and DTOObject[curProp] != '-1'):
+                    if (isinstance(DTOObject[curProp], str)
+                            and len(DTOObject[curProp].split()) == 0):
+                        DTOObject[curProp] = None
+                    self.SetProperty(curProp, DTOObject[curProp], startDate)
 
     def GetFlatObject(self, schema=None):
         ''' return flat object with static properties and last existing value of dyn props '''
+
         resultat = {}
         hybrid_properties = list(get_hybrid_properties(self.__class__).keys())
         if self.ID is not None:
@@ -311,7 +345,9 @@ class ObjectWithDynProp:
                             curStatProp.key)
                 except:
                     pass
-
+        if not schema:
+            schema = self.GetForm()['schema']
+        resultat = formatValue(resultat, schema)
         return resultat
 
     def GetSchemaFromStaticProps(self, FrontModules, DisplayMode):
@@ -335,15 +371,22 @@ class ObjectWithDynProp:
                     Editable)
         return resultat
 
-    def GetForm(self, FrontModules, DisplayMode):
+    def GetForm(self, FrontModules=None, DisplayMode='edit'):
+
+        if FrontModules is None:
+            FrontModules = self.GetFrontModules(self.FrontModuleForm)
+
         schema = self.GetSchemaFromStaticProps(FrontModules, DisplayMode)
         ObjType = self.GetType()
         ObjType.AddDynamicPropInSchemaDTO(schema, FrontModules, DisplayMode)
 
         resultat = {
             'schema': schema,
-            'fieldsets': ObjType.GetFieldSets(FrontModules, schema)
+            'fieldsets': ObjType.GetFieldSets(FrontModules, schema),
+            'grid': False
         }
+        if (ObjType.Status == 10):
+            resultat['grid'] = True
         return resultat
 
     def GetDTOWithSchema(self, FrontModules, DisplayMode):
@@ -369,30 +412,36 @@ class ObjectWithDynProp:
     def linkedFieldDate(self):
         return datetime.now()
 
-    def updateLinkedField(self, useDate=None):
+    def updateLinkedField(self, DTOObject, useDate=None):
         if useDate is None:
             useDate = self.linkedFieldDate()
 
-        for linkProp in self.getLinkedField():
+        linkedFields = self.getLinkedField()
+        entitiesToUpdate = {}
+        for linkProp in linkedFields:
             curPropName = linkProp['Name']
-            obj = LinkedTables[linkProp['LinkedTable']]
-            try:
-                linkedSource = self.GetProperty(
-                    linkProp['LinkSourceID'].replace('@Dyn:', ''))
-                curObj = self.ObjContext.query(obj).filter(
-                    getattr(obj, linkProp['LinkedID']) == linkedSource).one()
-                curObj.init_on_load()
-                curObj.SetProperty(linkProp['LinkedField'].replace(
-                    '@Dyn:', ''), self.GetProperty(curPropName), useDate)
-            except:
-                pass
+            linkedEntity = LinkedTables[linkProp['LinkedTable']]
+            linkedPropName = linkProp['LinkedField'].replace('@Dyn:', '')
+            linkedSource = self.GetProperty(
+                linkProp['LinkSourceID'].replace('@Dyn:', ''))
+            linkedObj = self.ObjContext.query(linkedEntity).filter(
+                getattr(linkedEntity, linkProp['LinkedID']) == linkedSource).one()
+
+            if linkedObj in entitiesToUpdate:
+                entitiesToUpdate[linkedObj][linkedPropName] = self.GetProperty(curPropName)
+            else:
+                entitiesToUpdate[linkedObj] = {linkedPropName: self.GetProperty(curPropName)}
+
+        for entity in entitiesToUpdate:
+            data = entitiesToUpdate[entity]
+            entity.init_on_load()
+            entity.UpdateFromJson(data, startDate=useDate)
 
     def deleteLinkedField(self, useDate=None):
         session = dbConfig['dbSession']()
         if useDate is None:
             useDate = self.linkedFieldDate()
         for linkProp in self.getLinkedField():
-            curPropName = linkProp['Name']
             obj = LinkedTables[linkProp['LinkedTable']]
 
             try:

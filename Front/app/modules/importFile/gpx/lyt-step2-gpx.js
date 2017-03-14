@@ -85,7 +85,7 @@ define([
 
     loadFieldsActivity: function() {
       return $.ajax({
-        url: 'fieldActivity',
+        url: 'stations/fieldActivity',
         method: 'GET',
         context: this,
       }).done(function(data){
@@ -142,8 +142,6 @@ define([
         {
           field: 'id',
           headerName: 'ID',
-          checkboxSelection: true
-
         },{
           field: 'name',
           headerName: 'Name',

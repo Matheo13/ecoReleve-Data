@@ -38,6 +38,9 @@ class MonitoredSitePosition(Base):
 class MonitoredSite (Base, ObjectWithDynProp):
 
     __tablename__ = 'MonitoredSite'
+    FrontModuleForm = 'MonitoredSiteForm'
+    FrontModuleGrid = 'MonitoredSiteGrid'
+
     ID = Column(Integer, Sequence('MonitoredSite__id_seq'), primary_key=True)
     Name = Column(String(250), nullable=False)
     Category = Column(String(250), nullable=False)
@@ -65,7 +68,7 @@ class MonitoredSite (Base, ObjectWithDynProp):
     @orm.reconstructor
     def init_on_load(self):
         ''' init_on_load is called on the fetch of object '''
-        ObjectWithDynProp.__init__(self)
+        self.__init__()
 
     def GetNewValue(self, nameProp):
         ReturnedValue = MonitoredSiteDynPropValue()

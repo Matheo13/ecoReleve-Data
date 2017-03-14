@@ -1,6 +1,9 @@
 {
   "name": "app",
   "version": "0.1.0",
+  "scripts": {
+    "less": "grunt less"
+  },
   "dependencies": {
   },
   "devDependencies": {

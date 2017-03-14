@@ -27,6 +27,9 @@ class Station(Base, ObjectWithDynProp):
 
     __tablename__ = 'Station'
 
+    FrontModuleForm = 'StationForm'
+    FrontModuleGrid = 'StationGrid'
+
     ID = Column(Integer, Sequence('Stations__id_seq'), primary_key=True)
     StationDate = Column(DateTime, index=True, nullable=False)
     Name = Column(String(250))
@@ -96,7 +99,7 @@ class Station(Base, ObjectWithDynProp):
     @orm.reconstructor
     def init_on_load(self):
         ''' init_on_load is called on the fetch of object '''
-        ObjectWithDynProp.__init__(self)
+        self.__init__()
 
     def GetNewValue(self, nameProp):
         ReturnedValue = StationDynPropValue()

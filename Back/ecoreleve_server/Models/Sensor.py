@@ -7,7 +7,8 @@ from sqlalchemy import (
     Numeric,
     String,
     Sequence,
-    orm)
+    orm,
+    func)
 from sqlalchemy.orm import relationship
 from ..GenericObjets.ObjectWithDynProp import ObjectWithDynProp
 from ..GenericObjets.ObjectTypeWithDynProp import ObjectTypeWithDynProp
@@ -16,12 +17,16 @@ from ..GenericObjets.ObjectTypeWithDynProp import ObjectTypeWithDynProp
 class Sensor (Base, ObjectWithDynProp):
 
     __tablename__ = 'Sensor'
+
+    FrontModuleForm = 'SensorForm'
+    FrontModuleGrid = 'SensorFilter'
+    
     ID = Column(Integer, Sequence('Sensor__id_seq'), primary_key=True)
     UnicIdentifier = Column(String(250))
     Model = Column(String(250))
     Compagny = Column(String(250))
     SerialNumber = Column(String(250))
-    creationDate = Column(DateTime, nullable=False)
+    creationDate = Column(DateTime, nullable=False, default=func.now())
     FK_SensorType = Column(Integer, ForeignKey('SensorType.ID'))
 
     SensorDynPropValues = relationship(
@@ -36,7 +41,7 @@ class Sensor (Base, ObjectWithDynProp):
     @orm.reconstructor
     def init_on_load(self):
         ''' init_on_load is called on the fetch of object '''
-        ObjectWithDynProp.__init__(self)
+        self.__init__()
 
     def GetNewValue(self, nameProp):
         ReturnedValue = SensorDynPropValue()

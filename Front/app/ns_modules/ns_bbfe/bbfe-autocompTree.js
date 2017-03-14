@@ -29,7 +29,8 @@ define([
 
         events: {
             'hide': "hasChanged",
-            'changeEditor':'inputChange'
+            'keyup': 'inputChange',
+            'changeEditor':'inputChange',
         },
         editable:false,
 
@@ -41,11 +42,14 @@ define([
         },
 
         inputChange: function(e){
-          this.isTermError = true;
+            this.isTermError = true;
         },
 
         initialize: function (options) {
             Form.editors.Base.prototype.initialize.call(this, options);
+
+            this.formGrid = options.formGrid;
+
             this.FirstRender = true;
             this.languages = {
                 'fr': '',
@@ -61,10 +65,10 @@ define([
 
             this.validators = options.schema.validators || [];
 
-            this.isTermError = true;
+            this.isTermError = false;
 
             this.template = options.template || this.constructor.template;
-            this.id = options.id;
+            this.id = this.cid;
             var editorAttrs = "";
 
             this.editable = options.schema.editable || true;
@@ -85,7 +89,8 @@ define([
                 inputID: this.id,
                 editorAttrs: editorAttrs,
                 editorClass: options.schema.editorClass,
-                iconFont:iconFont
+                iconFont: iconFont,
+                inputGroup: (this.formGrid) ? '' : 'input-group'
             }
 
             this.template = _.template(this.template, tplValeurs);
@@ -112,10 +117,23 @@ define([
             }
         },
 
+        getDisplayedValue: function(){
+            return this.$el.find('#' + this.id).val();
+        },
+
+        itemClick: function(){
+
+        },
+
         render: function () {
+            var _this = this;
             var $el = $(this.template);
             this.setElement($el);
-            var _this = this;
+
+            if(this.formGrid){
+                $el.find('.input-group-addon').addClass('hide');
+            }
+            
             _(function () {
                 if (_this.editable) {
                     _this.$el.find('#' + _this.id).autocompTree({
@@ -136,74 +154,93 @@ define([
                             var value = _this.$el.find('#' + _this.id + '_value').val();
                             _this.$el.find('input').trigger('changeEditor');
                             _this.$el.find('input').trigger('thesaurusChange');
-                            _this.onEditValidation(value);
-                        }
-                    });
-                }
-                if (_this.translateOnRender) {
-                    _this.validateAndTranslate(_this.value, true);
-                }
-                if (_this.FirstRender) {
-                    _this.$el.find('#' + _this.id).blur(function (options) {
-                        setTimeout(function (options) {
-                            var value = _this.$el.find('#' + _this.id + '_value').val();
-                            _this.onEditValidation(value);
-                        }, 150);
-                    });
 
+                            $('#' + _this.id).removeClass('error');
+                            _this.isTermError = false;
+                            _this.itemClick();
+                            _this.onEditValidation(value);
+                        },
+
+                    });
                 }
+
+                $('#treeView' + _this.id).on('keyup',function(e){
+                    var $this = $(this);
+                    if (e.keyCode == 38 || e.keyCode == 40){
+                        var itemFocus = $('#treeView' + _this.id).find('.fancytree-focused');
+                        var calcul =$this.scrollTop()+ $this.outerHeight()-itemFocus.height();
+                        if(itemFocus.position().top >= calcul){
+                            $('#treeView' + _this.id).scrollTop(itemFocus.position().top);
+                        }
+                        if(itemFocus.position().top < $this.scrollTop()){
+                            $('#treeView' + _this.id).scrollTop(itemFocus.position().top);
+                        }
+                    }
+                    if (e.keyCode == 27 || e.keyCode == 9){
+                        $this.css('display', 'none');
+                    }
+                });
+
+                if (_this.FirstRender && _this.value) {
+                    _this.$el.find('#' + _this.id).val(_this.value.displayValue);
+                    _this.$el.find('#' + _this.id + '_value').val(_this.value.value);
+                    if (_this.value.displayValue === '' && _this.value.value){
+                        _this.isTermError = true;
+                        _this.$el.find('#' + _this.id).val(_this.value.value);
+                    }
+                }
+                _this.$el.find('#' + _this.id).blur(function (options) {
+                    var value = _this.$el.find('#' + _this.id + '_value').val();
+                    if(_this.isEmptyVal(value)){
+                        return;
+                    }
+
+                    setTimeout(function (options) {
+                        var value = _this.$el.find('#' + _this.id).val();
+                        _this.onEditValidation(value);
+                    }, 15);
+                });
                 _this.FirstRender = false;
             }).defer();
             return this;
         },
-        validateAndTranslate: function (value, isTranslated) {
+
+        isEmptyVal: function(value){
+            if (value == null || value == '') {
+                this.displayErrorMsg(false);
+                this.$el.find('#' + this.id ).attr('data_value','');
+                return true;
+            } else {
+                return false;
+            }
+        },
+
+        validateAndTranslate: function (displayValue, isTranslated) {
             var _this = this;
 
-            if (value == null || value == '') {
-                _this.displayErrorMsg(false);
-                _this.$el.find('#' + _this.id ).attr('data_value','');
+            if (this.isEmptyVal(displayValue)) {
                 return;
-            }
-            var TypeField = "FullPath";
-            if (value && value.indexOf(">") == -1) {
-                TypeField = 'Name';
             }
             var erreur;
 
-            $.ajax({
-                url: _this.wsUrl + "/getTRaductionByType",
-                data: '{ "sInfo" : "' + value + '", "sTypeField" : "' + TypeField + '", "iParentId":"' + _this.startId + '",lng:"' + _this.lng + '"  }',
-                dataType: "json",
-                type: "POST",
-                contentType: "application/json; charset=utf-8",
-                success: function (data) {
-                    //$('#divAutoComp_' + _this.id).removeClass('error');
-                    $('#' + _this.id).removeClass('error');
-                    _this.displayErrorMsg(false);
-                    //_this.$el.find('input').trigger('change');
-                    var translatedValue = data["TTop_FullPathTranslated"];
-                    if (isTranslated) {
-                        if (_this.displayValueName == 'valueTranslated') {
-                            translatedValue = data["TTop_NameTranslated"];
-                        }
-                        _this.$el.find('#' + _this.id + '_value').val(data["TTop_FullPath"]);
-                        _this.$el.find('#' + _this.id ).attr('data_value',value);
-                        _this.$el.find('#' + _this.id).val(translatedValue);
-                        _this.$el.find('#' + _this.id).attr('title',translatedValue);
+            var valueFound = _this.$el.find('#treeView' + _this.id).fancytree('getTree').findFirst(function(node){
+                    if(node.data.valueTranslated == displayValue){
+                        return true;
                     }
+                });
+            
+            if(valueFound){
+                value = valueFound.data.fullpath
+                _this.$el.find('#' + _this.id + '_value').val(value);
+                this.isTermError = false;
+                $('#' + _this.id).removeClass('error');
 
-                    _this.displayErrorMsg(false);
-
-                },
-                error: function (data) {
-                    _this.$el.find('#' + _this.id).val(value);
-                    if (_this.editable) {
-                        //$('#divAutoComp_' + _this.id).addClass('error');
-                        $('#' + _this.id).addClass('error');
-                        _this.displayErrorMsg(true);
-                    }
+            } else{
+                if (_this.editable) {
+                    $('#' + _this.id).addClass('error');
+                    _this.displayErrorMsg(true);
                 }
-            });
+            }
         },
 
         onEditValidation: function (value) {
@@ -212,11 +249,8 @@ define([
                 this.isTermError = false;
                 return;
             }
-
             _this.isTermError = true;
             _this.validateAndTranslate(value, true);
-
-
         },
 
         displayErrorMsg: function (bool) {
@@ -224,13 +258,10 @@ define([
                 this.isTermError = bool;
                 if (this.isTermError) {
                     this.termError = "Invalid term";
-                    //this.$el.find('#divAutoComp_' + this.id).addClass('error');
                     this.$el.find('#' + this.id).addClass('error');
                     this.$el.find('#' + this.id).attr('title','Invalid term');
-                    //this.$el.find('#errorMsg').removeClass('hidden');
                 } else {
                     this.termError = "";
-                    //this.$el.find('#divAutoComp_' + this.id).removeClass('error');
                     $('#' + this.id).removeClass('error');
                     this.$el.find('#errorMsg').addClass('hidden');
                 }
@@ -239,7 +270,7 @@ define([
 
     }, {
         template: '<div id="divAutoComp_<%=inputID%>" >\
-        <div class="input-group">\
+        <div class="<%= inputGroup %>">\
             <span class="input-group-addon <%=iconFont%>"></span>\
             <input id="<%=inputID%>" name="<%=inputID%>" class="autocompTree <%=editorClass%>" type="text" placeholder="" <%=editorAttrs%>>\
         </div>\

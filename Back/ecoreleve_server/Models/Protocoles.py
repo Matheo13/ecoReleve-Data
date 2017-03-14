@@ -15,13 +15,17 @@ from sqlalchemy.dialects.mssql.base import BIT
 from sqlalchemy.orm import relationship
 from ..GenericObjets.ObjectWithDynProp import ObjectWithDynProp
 from ..GenericObjets.ObjectTypeWithDynProp import ObjectTypeWithDynProp
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy.ext.hybrid import hybrid_property
 from ..utils.parseValue import isNumeric
 
 
 class Observation(Base, ObjectWithDynProp):
     __tablename__ = 'Observation'
+
+    FrontModuleForm = 'ObservationForm'
+    FrontModuleGrid = None
+
     ID = Column(Integer, Sequence('Observation__id_seq'), primary_key=True)
     FK_ProtocoleType = Column(Integer, ForeignKey('ProtocoleType.ID'))
     ObservationDynPropValues = relationship(
@@ -52,7 +56,10 @@ class Observation(Base, ObjectWithDynProp):
 
     @orm.reconstructor
     def init_on_load(self):
-        ObjectWithDynProp.__init__(self)
+        self.__init__()
+
+    def getTypeObjectFKName(self):
+        return 'FK_ProtocoleType'
 
     def GetNewValue(self, nameProp):
         ReturnedValue = ObservationDynPropValue()
@@ -75,9 +82,12 @@ class Observation(Base, ObjectWithDynProp):
 
     def linkedFieldDate(self):
         try:
-            return self.Station.StationDate
+            linkedDate = self.Station.StationDate
         except:
-            return datetime.now()
+            linkedDate = datetime.now()
+        if 'unequipment' in self.GetType().Name.lower() :
+            linkedDate = linkedDate - timedelta(seconds=1)
+        return linkedDate
 
     @hybrid_property
     def Observation_childrens(self):
@@ -152,7 +162,7 @@ class Observation(Base, ObjectWithDynProp):
         ObjectWithDynProp.UpdateFromJson(self, DTOObject, None)
         if 'listOfSubObs' in DTOObject:
             self.SubObservation_childrens = DTOObject['listOfSubObs']
-        self.updateLinkedField()
+        self.updateLinkedField(DTOObject)
 
     def GetFlatObject(self, schema=None):
         result = super().GetFlatObject()
