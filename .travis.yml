@@ -3,6 +3,6 @@ python:
   - "3.5"
 
 before_script:
-  - ./Front npm install
+  - cd ./Front && npm install
 script: 
-  - ./Front npm run-script less
+  - cd ./Front && npm run-script less
