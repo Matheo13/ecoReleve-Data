@@ -3,6 +3,6 @@ python:
   - "3.5"
 
 before_script:
-  - ./front npm install
+  - ./Front npm install
 script: 
-  - ./front npm run-script less
+  - ./Front npm run-script less

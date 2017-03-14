@@ -1,8 +1,0 @@
-language: python
-python:
-  - "3.5"
-
-before_script:
-  - ./Front npm install
-script: 
-  - ./Front npm run-script less
