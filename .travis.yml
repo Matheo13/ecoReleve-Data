@@ -3,6 +3,8 @@ python:
   - "3.5"
 
 before_script:
-  - cd ./Front && npm install
+  - cd ./Front
+  - npm install
+  - bower install
 script: 
-  - cd ./Front && npm run-script less
+  - npm run-script less
