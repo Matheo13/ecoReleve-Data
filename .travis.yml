@@ -5,6 +5,7 @@ python:
 before_script:
   - cd ./Front
   - npm install
+  - npm install -g bower
   - bower install
 script: 
   - npm run-script less
