@@ -12,16 +12,15 @@ from datetime import datetime
 
 def add_cors_headers_response_callback(event):
     def cors_headers(request, response):
-        response.headers.update({
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST,GET,DELETE,PUT,OPTIONS',
-            'Access-Control-Allow-Headers': 'Origin,\
-                                            Content-Type,\
-                                            Accept,\
-                                            Authorization',
-            'Access-Control-Allow-Credentials': 'true',
-            'Access-Control-Max-Age': '1728000',
-        })
+        if 'HTTP_ORIGIN' in request.environ:
+            response.headers['Access-Control-Allow-Origin'] = (request.headers['Origin'])
+            
+        response.headers['Access-Control-Expose-Headers'] = (
+            'Content-Type, Date, Content-Length, Authorization, X-Request-ID, X-Requested-With')
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        response.headers['Access-Control-Allow-Headers'] = 'Access-Control-Allow-Origin, Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers'
+        response.headers['Access-Control-Allow-Methods'] = ('POST,GET,DELETE,PUT,OPTIONS')
+        response.headers['Content-Type'] = ('application/json')
     event.request.add_response_callback(cors_headers)
 
 
@@ -452,6 +451,19 @@ class RESTView(object):
     def __init__(self, context, request):
         self.request = request
         self.context = context
+
+    @view_config(request_method='OPTIONS', renderer='json', permission='read')
+    def options(self):
+        response = Response()
+        response.headers['Access-Control-Expose-Headers'] = (
+            'Content-Type, Date, Content-Length, Authorization, X-Request-ID, X-Requested-With')
+        response.headers['Access-Control-Allow-Origin'] = (
+            request.headers['Origin'])
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        response.headers['Access-Control-Allow-Headers'] = 'Access-Control-Allow-Origin, Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers'
+        response.headers['Access-Control-Allow-Methods'] = ('POST,GET,DELETE,PUT,OPTIONS')
+        response.headers['Content-Type'] = ('application/json')
+        return response
 
     @view_config(request_method='GET', renderer='json', permission='read')
     def get(self):
